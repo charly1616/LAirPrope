@@ -1,0 +1,46 @@
+# TODO List - Sistema de Proyección de Contaminación Atmosférica
+
+## 🔧 BACKEND & INFRAESTRUCTURA
+- [X] **RF15** - Implementar API REST para procesar y devolver proyecciones
+- [X] **RF25** - Desarrollar sistema de almacenamiento temporal de simulaciones
+- [X] **RF24** - Configurar HTTPS para todas las comunicaciones cliente-servidor
+- [ ] **RF16** - Crear mecanismo de actualización automática de proyecciones
+
+## 🤖 MODELOS DE IA & CÁLCULOS PREDICTIVOS
+- [X] **RF02** - Implementar modelo de IA predictivo con datos históricos nacionales/globales
+- [X] **RF01** - Desarrollar algoritmo de cálculo de proyección basado en tendencias históricas
+- [X] **RF05** - Crear modelos predictivos para CO₂, CH₄ y N₂O
+- [X] **RF06** - Implementar cálculo de contaminación en escalas mensual y anual
+- [ ] **RF33** - Integrar cálculo y visualización de márgenes de error en predicciones
+
+## 🎨 INTERFAZ DE USUARIO & VISUALIZACIÓN
+- [ ] **RF03** - Desarrollar componente de proyección gráfica de emisiones
+- [ ] **RF04** - Implementar selector de fecha futura para visualización
+========Eliminado========> [ ] **RF08** - Crear visualizaciones para métricas ambientales (capa de ozono, temperatura, calidad aire)
+- [ ] **RF09** - Desarrollar comparativas visuales entre situación actual y futura
+========Eliminado========> [ ] **RF20** - Implementar visualización de estado de capa de ozono (gráfica y numérica)
+- [ ] **RF21** - Diseñar indicadores visuales (colores, iconos, barras) para severidad de impacto
+- [ ] **RF28** - Crear vista resumen con principales variables afectadas
+- [ ] **RF31** - Implementar línea temporal de evolución de contaminación
+
+## 👤 INTERACCIÓN & USABILIDAD
+- [ ] **RF12** - Desarrollar selector de escenarios de contaminación (moderado, alto, extremo)
+- [ ] **RF18** - Implementar actualización dinámica al modificar fecha
+========Eliminado========> [ ] **RF19** - Crear filtros para ver resultados por tipo de contaminante
+- [ ] **RF23** - Desarrollar funcionalidad de comparación entre años seleccionados
+- [ ] **RF32** - Implementar selector de escala temporal (mensual, anual, decenal)
+- [ ] **RF17** - Crear validación de coherencia temporal de datos
+- [ ] **RF29** - Diseñar mensajes de error amigables para fallos en predicción
+
+## 📚 EDUCACIÓN AMBIENTAL & CONSECUENCIAS
+- [ ] **RF07** - Desarrollar módulo de consecuencias ambientales esperadas
+- [ ] **RF10** - Implementar sistema de advertencias gráficas por gravedad de escenario
+- [ ] **RF13** - Crear visualización de factores que más contribuyen al aumento de contaminación
+- [ ] **RF14** - Implementar comparativa con objetivos ambientales nacionales
+- [ ] **RF22** - Desarrollar explicaciones educativas para cada métrica ambiental
+- [ ] **RF26** - Crear sistema de mensajes de advertencia por niveles críticos
+- [ ] **RF27** - Implementar visualización de consecuencias sociales y de salud
+
+## 💬 ASISTENCIA INTELIGENTE & LLM
+- [ ] **RF11** - Integrar modelo de lenguaje para explicaciones automáticas de resultados
+- [ ] **RF30** - Desarrollar módulo de preguntas frecuentes con respuestas generadas por LLM

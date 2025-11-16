@@ -1,0 +1,9 @@
+{
+  "saved_at": "2025-11-15T02:13:19.334951Z",
+  "model_path": "lstm_co2_model.h5",
+  "model_type": "LSTM autoregressive",
+  "window_size": 144,
+  "notes": "Modelo LSTM entrenado sobre serie mensual de CO2.",
+  "scaler_min": 312.42,
+  "scaler_max": 430.51
+}

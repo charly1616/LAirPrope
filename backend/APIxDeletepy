@@ -1,0 +1,271 @@
+import os
+import json
+import logging
+import random
+from typing import Optional, Dict, Any, List
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+# Importa tu función real que hace la predicción
+from ForecastModel import forecast_co2
+
+# Cliente Gemini: mantenlo pero usa API KEY por env var
+import google.generativeai as genai
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# ---------- Config Gemini ----------
+GEMINI_API_KEY = "AIzaSyDk_gf2P3GSWvG9AU6r_L_4vI-2egHlvx8"
+
+def call_gemini_api( prompt: str, model_name: str = "gemini-2.5-flash", temperature: float = 0.7, max_tokens: int = 8192 ) -> str:
+    genai.configure(api_key="AIzaSyDk_gf2P3GSWvG9AU6r_L_4vI-2egHlvx8")
+    generation_config = genai.types.GenerationConfig( temperature=temperature, max_output_tokens=max_tokens, ) # Create model instance
+    model = genai.GenerativeModel( model_name=model_name, generation_config=generation_config )
+    try:
+        response = model.generate_content(prompt)
+        return response.text
+    except Exception as e:
+        return f"Error during API call: {str(e)}"
+
+# ---------- Datos / constantes ----------
+TheIcons = [
+    "industry","smog","fire","car","truck","gas-pump","oil-can","temperature-high","thermometer-full","sun","cloud-sun","wind",
+    "tornado","cloud-showers-heavy","bolt","solar-panel","water","leaf","recycle","seedling","plug","charging-station","mountain",
+    "fire-flame-curved","skull-crossbones","house-flood-water","tree","fish","ban","chart-line","chart-bar","globe","satellite","microscope",
+    "vial","filter","database","hands-helping","hand-holding-heart","lightbulb","bicycle","bus","trash-alt","shopping-bag","users","cloud",
+    "umbrella","snowflake","icicles","volcano","earth-americas","compass","map","mountain-sun","hill-rockslide","water-ladder","droplet",
+    "droplet-slash","fire-extinguisher","radiation","biohazard","recycle","trash","dumpster","dumpster-fire","receipt","cube","cubes","flask",
+    "atom","virus","virus-slash","bacteria","bacterium","mask-face","hand-sparkles","hand-holding-water","seedling","spa","feather","kiwi-bird",
+    "crow","frog","hippo","otter","dragon","paw","campground","tent","hiking","mountain-city","city","building","home","ship","plane","train",
+    "subway","motorcycle","traffic-light","road","bridge"
+]
+
+DEFAULT_ICON = "ban"
+
+acciones_climaticas = {
+    "reducir_energia": {"action": "Reducir el consumo de energía en el hogar", "icon": "plug"},
+    "usar_transporte_publico": {"action": "Usar transporte público o bicicleta", "icon": "bus"},
+    "plantar_arboles": {"action": "Plantar árboles y restaurar bosques", "icon": "tree"},
+    "reducir_carne": {"action": "Reducir consumo de carne y productos animales", "icon": "drumstick-bite"},
+    "comprar_local": {"action": "Comprar productos locales y de temporada", "icon": "shopping-basket"},
+    "reducir_residuos": {"action": "Reducir y evitar residuos (menos embalaje)", "icon": "trash-alt"},
+    "reciclar": {"action": "Separar y reciclar correctamente", "icon": "recycle"},
+    "compost": {"action": "Hacer compostaje de residuos orgánicos", "icon": "seedling"},
+    "eficiencia_electrodomesticos": {"action": "Usar electrodomésticos eficientes (A++ / Energy Star)", "icon": "bolt"},
+    "paneles_solares": {"action": "Instalar paneles solares o contratar energía renovable", "icon": "solar-panel"},
+    "aislamiento": {"action": "Mejorar el aislamiento térmico de la vivienda", "icon": "home"},
+    "bombillas_led": {"action": "Cambiar a bombillas LED de bajo consumo", "icon": "lightbulb"},
+    "educacion_activismo": {"action": "Educar y participar en campañas/activismo climático", "icon": "users"},
+    "apoyar_politicas": {"action": "Apoyar políticas públicas y líderes comprometidos", "icon": "handshake"},
+    "reducir_vuelos": {"action": "Reducir viajes en avión y elegir alternativas", "icon": "plane"},
+    "reparar_no_tirar": {"action": "Reparar objetos en lugar de tirar y comprar nuevo", "icon": "tools"},
+    "menos_plastico": {"action": "Reducir uso de plásticos de un solo uso", "icon": "ban"},
+    "ahorro_agua": {"action": "Optimizar el consumo de agua (duchas cortas, reparar fugas)", "icon": "tint"},
+    "energia_renovable_contrato": {"action": "Contratar suministro de energía 100% renovable si es posible", "icon": "charging-station"},
+    "invertir_sostenible": {"action": "Invertir o ahorrar en fondos sostenibles / verdes", "icon": "chart-line"},
+    "consumo_responsable": {"action": "Practicar consumo responsable y minimalismo", "icon": "leaf"}
+}
+
+# Caché por months: evita recalcular muchas veces y evita problemas del "máximo"
+forecast_cache: Dict[int, Dict[str, Any]] = {}  # llave: months -> {"dates": [...], "predictions": [...]}
+savedConsequences: Dict[int, List[Dict[str, Any]]] = {}
+
+# ---------- Helpers ----------
+def transformar_texto(texto_json: str, m: int) -> List[Dict[str, Any]]:
+    """
+    Intenta parsear texto_json como JSON. Si es una lista de objetos, valida iconos.
+    Si no puede parsear o no es lista, devuelve una respuesta general (5 objetos).
+    Guarda el resultado en savedConsequences[m].
+    """
+    try:
+        # Limpia espacios en los extremos
+        raw = texto_json.strip()
+        data = json.loads(raw)
+        if not isinstance(data, list):
+            if isinstance(data, dict):
+                data = [data]
+            else:
+                raise ValueError("JSON no es lista ni dict")
+        # Validar/normalizar cada item
+        normalized = []
+        for item in data:
+            if not isinstance(item, dict):
+                continue
+            # Si no tiene description o impact_level, lo omitimos (o podríamos rellenar)
+            desc = item.get("description", "").strip() or None
+            impact = item.get("impact_level", None)
+            try:
+                if impact is not None:
+                    impact = int(impact)
+                    if impact < 1: impact = 1
+                    if impact > 5: impact = 5
+            except Exception:
+                impact = 3
+            icon = item.get("icon", None)
+            if icon not in TheIcons:
+                icon = DEFAULT_ICON
+            if desc is None:
+                continue
+            normalized.append({"description": desc, "impact_level": impact or 3, "icon": icon})
+        # Si la lista normalizada no tiene exactamente 5, intentar recortar o rellenar
+        if len(normalized) >= 5:
+            normalized = normalized[:5]
+        else:
+            # rellenar con respuestas generales hasta 5
+            while len(normalized) < 5:
+                normalized.append({
+                    "description": "Aumento de forzamiento radiativo por mayor CO₂ atmosférico.",
+                    "impact_level": 5,
+                    "icon": "temperature-high"
+                })
+        savedConsequences[m] = normalized
+        return normalized
+    except Exception as e:
+        print("fallo en el transformar json")
+        print(texto_json)
+        respuestaGeneral = [
+            {"description": "La tasa acelerada de incremento de CO₂ intensifica el forzamiento radiativo.", "impact_level": 5, "icon": "temperature-high"},
+            {"description": "Acidificación oceánica por mayor absorción de CO₂.", "impact_level": 4, "icon": "droplet"},
+            {"description": "Mayor frecuencia e intensidad de eventos extremos (olas de calor, precipitaciones).", "impact_level": 5, "icon": "cloud-showers-heavy"},
+            {"description": "Aceleración del derretimiento de glaciares y pérdida de hielo.", "impact_level": 4, "icon": "snowflake"},
+            {"description": "Estrés ecológico y pérdida de biodiversidad en múltiples ecosistemas.", "impact_level": 4, "icon": "leaf"},
+        ]
+        return respuestaGeneral
+
+def forecast_co2_json(months: int) -> Dict[str, Any]:
+
+    """
+    Envuelve la función forecast_co2 de tu ForecastModel y normaliza el output.
+    Debe devolver {'dates': [...], 'predictions': [...]} con predictions como lista (floats/ints).
+    """
+    result = forecast_co2(months)
+    # Validaciones básicas
+    dates = result.get("dates") if isinstance(result, dict) else None
+    preds = result.get("predictions") if isinstance(result, dict) else None
+
+    # Si forecast_co2 devuelve directamente arrays (no dict), intentar manejarlo
+    if dates is None or preds is None:
+        # intentar suponer que result es una estructura con atributos
+        try:
+            dates = getattr(result, "dates", None)
+            preds = getattr(result, "predictions", None)
+        except Exception:
+            dates = None
+            preds = None
+
+    if dates is None or preds is None:
+        raise RuntimeError("forecast_co2 no devolvió una estructura esperada {'dates','predictions'}")
+
+    # Convertir dates a strings YYYY-MM-DD si vienen como datetime
+    try:
+        dates_list = [d.strftime("%Y-%m-%d") for d in dates]
+    except Exception:
+        dates_list = [str(d) for d in dates]
+
+    # Convertir preds a lista de floats/ints
+    try:
+        # Si es numpy array
+        preds_list = list(map(float, preds))
+    except Exception:
+        # fallback más permisivo
+        preds_list = []
+        for p in preds:
+            try:
+                preds_list.append(float(p))
+            except Exception:
+                preds_list.append(None)
+
+    return {"dates": dates_list, "predictions": preds_list}
+
+
+# ---------- FastAPI app ----------
+app = FastAPI()
+api_sub = "/api/1"
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Endpoint para obtener el pronóstico de contaminación en X meses
+@app.get(f"{api_sub}/forecast/{{months}}")
+async def getForecast(months: int = 5):
+    """
+    Devuelve:
+    {
+      "data": {"dates": [...], "predictions": [...]},
+      "Consequences": [ ... 5 objetos ...]
+    }
+    """
+    if months <= 0:
+        return {"error": "months debe ser entero positivo"}
+
+    # Reusar caché por months específico
+    if months in forecast_cache:
+        forecas = forecast_cache[months]
+        logger.info("Usando cache para months=%s", months)
+    else:
+        # Calcular y guardar en caché (manejo de excepciones)
+        try:
+            forecas = forecast_co2_json(months)
+            forecast_cache[months] = forecas
+        except Exception as e:
+            logger.exception("Error al obtener forecast_co2_json")
+            return {"error": str(e)}
+
+    # Preparar prompt seguro (convertir predicciones a string)
+    preds_str = ", ".join([str(p) for p in forecas.get("predictions", [])])
+    ThePrompt = (
+        "Necesito que actúes como un experto en cambio climático y generes un JSON exclusivamente.\n"
+        "El JSON debe describir las 5 principales consecuencias científicamente reconocidas que ocurrirían "
+        "si el nivel de CO₂ (ppm) aumentara siguiendo esta proyección: "
+        f"{preds_str} durante los próximos {months} meses.\n\n"
+        "Debes cumplir estrictamente los siguientes requisitos:\n\n"
+        "1. La respuesta debe ser ÚNICAMENTE un texto plano con forma de JSON sin explicación adicional, sin texto antes o después.\n"
+        "2. El texto debe ser una lista de exactamente 5 objetos.\n"
+        "3. Cada objeto debe tener la siguiente estructura obligatoria:\n"
+        '   { "description": "<explicación clara, técnica y profesional>", "impact_level": <número entero entre 1 y 5>, "icon": "" }\n'
+        "4. La descripción debe ser precisa, basada en ciencia climática y explicada en tono profesional, además debe ser corto.\n"
+        "5. El impact_level debe representar la severidad (1 = bajo, 5 = crítico).\n"
+        "6. El icono debe ser uno de los siguientes iconos y debe representar lo que se está diciendo en la consecuencia:\n"
+        f"{TheIcons}\n"
+        "7. No debes incluir texto, comentarios, markdown ni explicaciones fuera del JSON.\n\n"
+        "Si no puedes generar algún punto, debes generar igualmente el JSON, nunca otro tipo de salida.\n"
+    )
+
+    # Obtener consequences desde cache si existe
+    conseq = savedConsequences.get(months)
+    if conseq is not None:
+        logger.info("CARGADO de los Guardados para months=%s", months)
+    else:
+        # Llamar a Gemini y parsear
+        try:
+            raw = call_gemini_api(prompt=ThePrompt)
+            conseq = transformar_texto(raw, months)
+        except Exception as e:
+            logger.exception("Error generando consecuencias con Gemini; usando fallback")
+            conseq = transformar_texto("", months)
+    return {"data": forecas, "Consequences": conseq}
+
+
+# Endpoint para obtener recomendaciones aleatorias de acciones climáticas
+@app.get(f"{api_sub}/actions")
+async def getActions5():
+    # devolver 5 acciones o menos si no hay suficientes
+    pool = list(acciones_climaticas.items())
+    n = min(5, len(pool))
+    return {"actions": random.sample(pool, n)}
+
+
+@app.get(f"{api_sub}/actions/{{amm}}")
+async def getActionsam(amm: int = 5):
+    pool = list(acciones_climaticas.items())
+    if amm <= 0:
+        return {"actions": []}
+    n = min(amm, len(pool))
+    return {"actions": random.sample(pool, n)}
