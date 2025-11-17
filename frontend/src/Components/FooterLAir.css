@@ -1,0 +1,73 @@
+/* Main footer */
+.footer {
+    background-color: #2a3345ff;
+    color: white;
+    padding: 2rem 1rem;
+    margin-top: auto;
+    text-align: center;
+    border-top: 1px solid #3a4455ff;
+}
+
+/* Wrapper */
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* Logo */
+.footer-logo {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.logo-main {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #4ecdc4;
+}
+
+.logo-sub {
+    font-size: 1.5rem;
+    font-weight: 300;
+    color: white;
+}
+
+/* Description text */
+.footer-description {
+    margin: 0;
+    font-size: 0.9rem;
+    color: #a0a0a0;
+    line-height: 1.5;
+}
+
+/* Links container */
+.footer-links {
+    display: flex;
+    gap: 2rem;
+    margin-top: 0.5rem;
+}
+
+/* Individual link */
+.footer-link {
+    color: #a0a0a0;
+    text-decoration: none;
+    font-size: 0.8rem;
+    transition: color 0.3s ease;
+}
+
+.footer-link:hover {
+    color: #4ecdc4;
+}
+
+/* Copyright */
+.footer-copy {
+    margin: 0;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    color: #888;
+}

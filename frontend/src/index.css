@@ -1,68 +1,102 @@
 :root {
+  --primary: #84994F;
+  --primary-dark: #6f823e;
+  --primary-light: #a4b36a;
+
+  --bg: #f5f7f0;
+  --text: #2a2e1f;
+  --text-soft: #3e4631;
+  --card: #ffffff;
+  
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color: var(--text);
+  background-color: var(--bg);
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
+/* RESET */
+div, a, body {
+  margin: 0;
+  padding: 0;
 }
-a:hover {
-  color: #535bf2;
-}
+
 
 body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
 }
+
+/* Este contenedor envuelve toda la página */
+#app {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  width: 100%;
+}
+
+/* Contenido principal modular */
+main {
+  flex: 1;              /* Ocupar todo el espacio disponible */
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;            /* Espacio entre módulos */
+  padding: 2rem;
+}
+
+/* --------- Typography + Links --------- */
 
 h1 {
   font-size: 3.2em;
   line-height: 1.1;
+  color: var(--text);
 }
+
+a {
+  font-weight: 500;
+  color: var(--primary);
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+a:hover {
+  color: var(--primary-dark);
+}
+
+/* --------- Buttons --------- */
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border-radius: 10px;
+  border: 2px solid var(--primary);
   padding: 0.6em 1.2em;
+
   font-size: 1em;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
-  background-color: #1a1a1a;
+
+  background-color: var(--primary-light);
+  color: #ffffff;
+
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: 0.25s ease;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:hover {
+  background-color: var(--primary);
+  border-color: var(--primary-dark);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto var(--primary-light);
 }

@@ -1,0 +1,86 @@
+/* Wrapper - Light mode */
+.navbar {
+    width: 100%;
+    height: 70px;
+    background-color: #eef3ee;
+    color: #383838;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2rem;
+    padding: 0 2rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+
+/* Normal nav items */
+.nav-item {
+    color: #666666; /* Suave y elegante */
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: color 0.3s ease;
+    font-weight: 600;
+}
+
+.nav-item:hover {
+    color: #FCB53B; /* Acento fuerte */
+}
+
+/* GitHub Icon */
+.github-link {
+    color: #84994F;
+    transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+.github-link:hover {
+    color: #c7e47e;
+    opacity: 0.9;
+}
+
+/* Center logo & title */
+.navbar-center {
+    padding: 150px;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.navbar-logo {
+    margin-right: -14px;
+    width: 56px;
+    height: 56px;
+}
+
+.navbar-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #84994F; /* Título central con acento */
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 1rem;
+        height: 60px;
+    }
+    .navbar-title {
+        font-size: 1.1rem;
+    }
+
+    .navbar-logo {
+        width: 34px;
+        height: 34px;
+    }
+}
+
+
+
+.navbar-left, .navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
