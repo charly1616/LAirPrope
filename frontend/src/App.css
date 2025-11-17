@@ -20,3 +20,9 @@ body {
   flex: 1;
 }
 
+
+section {
+  display: flex;
+  justify-content: center;   /* horizontal */
+  align-items: center;       
+}

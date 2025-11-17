@@ -1,4 +1,4 @@
-/* Wrapper - Light mode */
+/* Wrapper - Light mode (UNCHANGED on PC) */
 .navbar {
     width: 100%;
     height: 70px;
@@ -15,10 +15,9 @@
     z-index: 1000;
 }
 
-
-/* Normal nav items */
+/* Normal nav items (UNCHANGED) */
 .nav-item {
-    color: #666666; /* Suave y elegante */
+    color: #666666;
     text-decoration: none;
     font-size: 0.95rem;
     transition: color 0.3s ease;
@@ -26,10 +25,10 @@
 }
 
 .nav-item:hover {
-    color: #FCB53B; /* Acento fuerte */
+    color: #FCB53B;
 }
 
-/* GitHub Icon */
+/* GitHub Icon (UNCHANGED) */
 .github-link {
     color: #84994F;
     transition: color 0.3s ease, opacity 0.3s ease;
@@ -40,9 +39,9 @@
     opacity: 0.9;
 }
 
-/* Center logo & title */
+/* Center logo & title (DESKTOP LOOK KEPT) */
 .navbar-center {
-    padding: 150px;
+    padding: 150px; /* Leaving EXACT as desktop */
     left: 50%;
     display: flex;
     align-items: center;
@@ -58,29 +57,63 @@
 .navbar-title {
     font-size: 1.2rem;
     font-weight: bold;
-    color: #84994F; /* Título central con acento */
+    color: #84994F;
 }
 
-/* Mobile */
-@media (max-width: 768px) {
-    .navbar {
-        padding: 0 1rem;
-        height: 60px;
-    }
-    .navbar-title {
-        font-size: 1.1rem;
-    }
-
-    .navbar-logo {
-        width: 34px;
-        height: 34px;
-    }
-}
-
-
-
+/* FLEX groups (UNCHANGED) */
 .navbar-left, .navbar-right {
     display: flex;
     align-items: center;
     gap: 1.5rem;
+}
+
+/* ---------------------------------------------------
+   MOBILE RESPONSIVENESS (EXCLUSIVE)
+   DOES NOT AFFECT DESKTOP DESIGN
+-----------------------------------------------------*/
+@media (max-width: 768px) {
+
+    .navbar {
+        display: flex;
+        padding: 0 1rem;
+        height: 60px;
+        align-items: center;
+        justify-content: center; /* Prevent overlap */
+        gap: 1rem;
+    }
+
+    /* Fix the huge padding that breaks mobile layout */
+    .navbar-center {
+        padding: 10px;
+        left: 50%;
+    }
+
+    .navbar-title {
+        font-size: 1rem;
+    }
+
+    .navbar-logo {
+        width: 32px;
+        height: 32px;
+        margin-right: 0;
+    }
+
+    .navbar-left, .navbar-right {
+        gap: 0.5rem;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+
+    /* Reduce nav item text to avoid overflow */
+    .nav-item {
+        font-size: 0.8rem;
+    }
+
+    /* Hide some optional items if needed (not icons) */
+    .navbar-left .nav-item.hide-mobile,
+    .navbar-right .nav-item.hide-mobile {
+        display: none;
+    }
 }

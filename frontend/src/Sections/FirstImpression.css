@@ -1,0 +1,29 @@
+.first-impression {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+}
+
+.hero-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.description {
+  font-size: 1.2rem;
+  margin-top: 1rem;
+  padding: 0 1rem;
+  max-width: 800px;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .description {
+    font-size: 1rem;
+  }
+}
