@@ -9,9 +9,17 @@ export default function FirstImpression() {
         src="/ClimatePanorama.jpeg"
         alt="Flat illustration panorama"
       />
-      <p className="description">
-        Este es un modelo que puedes usar para predecir CO₂ en el aire en los próximos X meses
+      <p style={{
+                lineHeight: "1.6",
+                color: "#4a4a4a",
+                fontSize: "1rem",
+                textWrap: "pretty",
+                maxWidth: "800px",
+                padding: "0 20px",
+            }}>
+        Mira cómo podrían evolucionar los niveles de CO₂ en los próximos meses. Esta herramienta combina datos reales y un modelo avanzado de predicción para mostrarte el futuro de la atmósfera, explicar sus posibles consecuencias y ofrecerte acciones simples para generar un impacto positivo. Descubre qué podría pasar… y cómo puedes ayudar a cambiarlo.
       </p>
+
     </section>
   );
 }

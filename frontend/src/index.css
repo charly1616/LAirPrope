@@ -8,7 +8,7 @@
   --text-soft: #3e4631;
   --card: #ffffff;
   
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Rajdhani,Outfit;
   line-height: 1.6;
   font-weight: 400;
 
@@ -100,3 +100,5 @@ button:focus,
 button:focus-visible {
   outline: 4px auto var(--primary-light);
 }
+
+
