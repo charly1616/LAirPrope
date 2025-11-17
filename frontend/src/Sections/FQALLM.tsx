@@ -81,32 +81,60 @@ const AskLLM = () => {
 // --- FQL Principal de la Sección de FAQ ---
 const FQALLMM = () => {
   const faqData = [
-    {
-      question: '¿Qué es React y por qué es tan popular?',
-      answer: 'React es una biblioteca de JavaScript para construir interfaces de usuario. Su popularidad se debe a su modelo de componentes reutilizables, el DOM virtual que optimiza el rendimiento y un ecosistema robusto mantenido por Facebook.',
-    },
-    {
-      question: '¿Cuál es la diferencia entre una SPA y una aplicación web tradicional?',
-      answer: 'Una Single Page Application (SPA) carga una única página HTML y luego actualiza dinámicamente el contenido. Esto proporciona una experiencia de usuario más fluida y rápida, similar a una aplicación de escritorio. Las aplicaciones tradicionales recargan la página completa con cada nueva solicitud.',
-    },
-    {
-      question: '¿Qué son los hooks en React?',
-      answer: 'Los hooks son funciones que te permiten "enganchar" el estado de React y las características del ciclo de vida desde componentes de función. El hook `useState` es para manejar el estado local, y `useEffect` es para realizar efectos secundarios.',
-    },
-     {
-      question: '¿Es necesario utilizar CSS externo?',
-      answer: 'Si bien existen soluciones de CSS-in-JS, el uso de archivos .CSS externos es una buena práctica para la separación de responsabilidades, el cacheo del navegador y la facilidad de mantenimiento, especialmente en proyectos grandes.',
-    },
-  ];
+  {
+    question: "¿Qué datos utiliza el sistema para predecir los niveles de CO₂?",
+    answer: "El sistema usa datos históricos de concentración atmosférica de CO₂ medidos mensualmente. Estos datos se procesan y normalizan para que el modelo LSTM pueda aprender patrones de tendencia y estacionalidad."
+  },
+  {
+    question: "¿Cómo funciona el modelo LSTM que realiza las predicciones?",
+    answer: "El modelo LSTM analiza secuencias temporales de varios meses y aprende dependencias a largo plazo para estimar el valor futuro del CO₂. Esta arquitectura es ideal para series de tiempo con patrones complejos."
+  },
+  {
+    question: "¿Cada cuánto tiempo se actualizan las predicciones de CO₂?",
+    answer: "Las predicciones pueden regenerarse automáticamente cada vez que se cargan datos nuevos en la API. La frecuencia depende de cómo esté configurado el backend."
+  },
+  {
+    question: "¿Qué tan preciso es el modelo de predicción?",
+    answer: "El modelo ha sido evaluado con métricas como RMSE y MSE, logrando un error promedio menor a 1 ppm, lo que indica que sigue adecuadamente la tendencia real del CO₂."
+  },
+  {
+    question: "¿Qué tecnología utiliza el backend del proyecto?",
+    answer: "El backend expone endpoints REST, generalmente implementados con Python y frameworks como FastAPI o Django, que procesan datos, ejecutan el modelo y devuelven predicciones."
+  },
+  {
+    question: "¿Cómo se visualizan los datos de CO₂ en la interfaz?",
+    answer: "La interfaz usa componentes de React que muestran gráficos interactivos, tarjetas explicativas y secciones que detallan las acciones climáticas y la arquitectura del modelo."
+  },
+  {
+    question: "¿Cómo se manejan los estados de carga y error en la aplicación?",
+    answer: "La app muestra estados visuales como skeletons, mensajes de error y pantallas de carga mientras se consultan los datos desde la API para mejorar la experiencia del usuario."
+  },
+  {
+    question: "¿Qué impacto tienen las acciones climáticas recomendadas?",
+    answer: "Cada acción está vinculada a una reducción potencial de emisiones, explicando cómo contribuye a disminuir la huella de carbono del usuario y por qué es efectiva."
+  },
+  {
+    question: "¿Se pueden agregar nuevas acciones climáticas al sistema?",
+    answer: "Sí, el backend está preparado para recibir nuevas acciones mediante el panel o la API, y el frontend las renderiza dinámicamente sin necesidad de modificar el código."
+  },
+  {
+    question: "¿Qué limitaciones tiene el modelo de predicción de CO₂?",
+    answer: "El modelo no considera eventos excepcionales como erupciones volcánicas o cambios drásticos en políticas ambientales. Además, a mayor horizonte de predicción, aumenta la incertidumbre."
+  }
+];
+
 
   return (
-    <div className="faq-container">
+    <div className="faq-container" id='fqa'>
       <h2>Preguntas Frecuentes</h2>
       <div className="faq-list">
-        {faqData.map((item, index) => (
-          <FaqItem key={index} question={item.question} answer={item.answer} />
-        ))}
-      </div>
+        {faqData
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 4)
+            .map((item, index) => (
+            <FaqItem key={index} question={item.question} answer={item.answer} />
+            ))}
+        </div>
       <AskLLM />
     </div>
   );

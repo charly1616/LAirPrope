@@ -8,7 +8,10 @@ export default function FirstImpression() {
         className="hero-image"
         src="/ClimatePanorama.jpeg"
         alt="Flat illustration panorama"
+        id="intro"
       />
+      <br />
+      <br />
       <p style={{
                 lineHeight: "1.6",
                 color: "#4a4a4a",

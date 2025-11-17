@@ -2,7 +2,7 @@ import "./ModelDetails.css";
 
 function ModelDetails() {
   return (
-    <section className="model-section">
+    <section className="model-section" id="model">
       <div className="model-container">
 
         <h2 className="model-title">Detalles del Modelo de Predicción de CO₂</h2>
@@ -67,7 +67,7 @@ function ModelDetails() {
           real del CO₂ incluso en intervalos no vistos.
         </p>
 
-        <h3>5. Validación y comportamiento</h3>
+        <h3>Validación y comportamiento</h3>
         <p>
           El modelo sigue de forma coherente la tendencia global, con buena capacidad de 
           extrapolación de patrones.
