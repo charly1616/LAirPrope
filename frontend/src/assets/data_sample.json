@@ -1,0 +1,91 @@
+{
+  "data": {
+    "dates": [
+      "2025-09-01",
+      "2025-10-01",
+      "2025-11-01",
+      "2025-12-01",
+      "2026-01-01",
+      "2026-02-01",
+      "2026-03-01",
+      "2026-04-01",
+      "2026-05-01",
+      "2026-06-01"
+    ],
+    "predictions": [
+      425.416809082031,
+      425.218597412109,
+      425.741333007813,
+      426.789947509766,
+      428.179534912109,
+      429.694732666016,
+      431.121673583984,
+      432.080841064453,
+      432.252136230469,
+      431.57861328125
+    ],
+    "last_16_dates": [
+      "2024-05-01",
+      "2024-06-01",
+      "2024-07-01",
+      "2024-08-01",
+      "2024-09-01",
+      "2024-10-01",
+      "2024-11-01",
+      "2024-12-01",
+      "2025-01-01",
+      "2025-02-01",
+      "2025-03-01",
+      "2025-04-01",
+      "2025-05-01",
+      "2025-06-01",
+      "2025-07-01",
+      "2025-08-01"
+    ],
+    "last_16_values": [
+      426.9,
+      426.91,
+      425.55,
+      422.99,
+      422.03,
+      422.38,
+      423.85,
+      425.4,
+      426.65,
+      427.09,
+      428.15,
+      429.64,
+      430.51,
+      429.61,
+      427.87,
+      425.48
+    ],
+    "consequences": [
+      {
+        "description": "La tasa acelerada de incremento de CO₂ intensifica el forzamiento radiativo.",
+        "impact_level": 5,
+        "icon": "temperature-high"
+      },
+      {
+        "description": "Acidificación oceánica por mayor absorción de CO₂.",
+        "impact_level": 4,
+        "icon": "droplet"
+      },
+      {
+        "description": "Mayor frecuencia e intensidad de eventos extremos.",
+        "impact_level": 5,
+        "icon": "cloud-showers-heavy"
+      },
+      {
+        "description": "Aceleración del derretimiento de glaciares.",
+        "impact_level": 4,
+        "icon": "snowflake"
+      },
+      {
+        "description": "Estrés ecológico y pérdida de biodiversidad.",
+        "impact_level": 4,
+        "icon": "leaf"
+      }
+    ]
+  }
+}

@@ -14,8 +14,8 @@
 - [ ] **RF33** - Integrar cálculo y visualización de márgenes de error en predicciones
 
 ## 🎨 INTERFAZ DE USUARIO & VISUALIZACIÓN
-- [ ] **RF03** - Desarrollar componente de proyección gráfica de emisiones
-- [ ] **RF04** - Implementar selector de fecha futura para visualización
+- [X] **RF03** - Desarrollar componente de proyección gráfica de emisiones
+- [X] **RF04** - Implementar selector de fecha futura para visualización
 ========Eliminado========> [ ] **RF08** - Crear visualizaciones para métricas ambientales (capa de ozono, temperatura, calidad aire)
 - [ ] **RF09** - Desarrollar comparativas visuales entre situación actual y futura
 ========Eliminado========> [ ] **RF20** - Implementar visualización de estado de capa de ozono (gráfica y numérica)

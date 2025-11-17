@@ -1,0 +1,195 @@
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.data-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 20px auto 40px auto;
+  color: #222;
+  font-size: 1rem;
+  line-height: 1.5rem;
+}
+
+/* ===== TITULO DEL SLIDER ===== */
+.model-title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+  color: #1d1d1f;
+  text-align: center;
+}
+
+/* ===== TEXTO EXPLICATIVO ===== */
+.data-text {
+  margin-bottom: 12px;
+  color: #333;
+  text-align: center;
+}
+
+/* ===== LABEL DEL SLIDER ===== */
+.data-label {
+  display: block;
+  font-weight: 600;
+  color: #2b2b2d;
+  margin-bottom: 8px;
+}
+
+/* ===== SLIDER ===== */
+.data-slider {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+}
+
+/* Thumb del slider */
+.data-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 2px solid #2b2b2d;
+  transition: transform 0.1s ease;
+}
+
+.data-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+/* Barra del slider */
+.data-slider::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #FFE797, #FCB53B);
+}
+
+/* ===== TEXTO DEL VALOR SELECCIONADO ===== */
+.data-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.data-value {
+  display: inline-block;
+  padding: 6px 16px;
+  font-weight: 600;
+  color: #1d1d1f;
+  border-radius: 999px;
+  background-color: #84994F;    /* Tu verde oliva */
+  border: 1px solid #84994F;
+}
+
+/* ========== GRÁFICA ========== */
+.data-chart-container {
+  width: 100%;
+  margin-top: 26px;
+}
+
+/* Mensaje de carga */
+.data-loading {
+  text-align: center;
+  color: #555;
+  font-size: 0.95rem;
+}
+
+/* Mensaje de error */
+.data-error {
+  text-align: center;
+  color: #b00020;
+  font-size: 0.95rem;
+  margin-top: 10px;
+}
+
+/* ===== SECCIÓN DE CONSECUENCIAS ===== */
+.consequences-section {
+  margin-top: 40px;
+  padding: 20px;
+  background: transparent;
+  border-radius: 8px;
+}
+
+.consequences-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.consequences-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.consequence-item {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  background: white;
+  border-left: 4px solid;
+  border-radius: 6px;
+  box-shadow: #FCB53B;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.consequence-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.consequence-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-bottom: 8px;
+}
+
+.consequence-icon {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+  color: #4b7bec;
+}
+
+.consequence-description {
+  font-size: 0.95rem;
+  color: #333;
+  margin-bottom: 8px;
+  flex-grow: 1;
+  line-height: 1.4;
+}
+
+.consequence-level {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #666;
+  margin-top: 8px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .data-section {
+    margin: 16px auto 30px auto;
+    font-size: 0.95rem;
+  }
+
+  .data-icon {
+    font-size: 1.4rem;
+  }
+
+  .model-title {
+    font-size: 1.6rem;
+  }
+
+  .consequences-list {
+    grid-template-columns: 1fr;
+  }
+
+  .consequences-title {
+    font-size: 1.2rem;
+  }
+}
+
