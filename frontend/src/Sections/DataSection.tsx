@@ -10,7 +10,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-import dataSample from "../assets/data_sample.json";
+
 
 type SlidersComponentProps = {};
 
@@ -36,10 +36,10 @@ type Consequence = {
 };
 
 const API_BASE =
-  "https://wmsxzg35-8000.use2.devtunnels.ms/api/1/forecast";
+  "http://127.0.0.1:8000/api/1/forecast";
 
 const DataSection: React.FC<SlidersComponentProps> = () => {
-  const [months, setMonths] = useState<number>(120);
+  const [months, setMonths] = useState<number>(1);
   const [chartData, setChartData] = useState<ChartPoint[]>([]);
   const [consequences, setConsequences] = useState<Consequence[]>([]);
   const [loading, setLoading] = useState(false);
@@ -66,7 +66,10 @@ const DataSection: React.FC<SlidersComponentProps> = () => {
     }
   };
 
-const REQUEST_TIMEOUT = 8000; 
+  // Intervalo dinámico para el eje X: muestra como máximo ~12 ticks
+  const xInterval = chartData.length > 12 ? Math.ceil(chartData.length / 12) : 0;
+
+const REQUEST_TIMEOUT = 30000; 
 
 const fetchForecast = async (months: number) => {
   if (months <= 0) {
@@ -149,15 +152,48 @@ const fetchForecast = async (months: number) => {
     });
 
     setChartData(points);
+
+    // Registro para depuración: ver estructura completa recibida
+    console.debug("[FETCH] respuesta JSON:", json);
+
+    // Si la API devuelve una lista de consecuencias, úsala
+    // Aceptar varias posibles ubicaciones/nombres desde la API (case-insensitive)
+    const getKeyCaseInsensitive = (obj: any, key: string) => {
+      if (!obj || typeof obj !== "object") return undefined;
+      const found = Object.keys(obj).find((k) => k.toLowerCase() === key.toLowerCase());
+      return found ? (obj as any)[found] : undefined;
+    };
+
+    const candidates = [
+      getKeyCaseInsensitive(json, "consequences"),
+      getKeyCaseInsensitive(json?.data, "consequences"),
+      getKeyCaseInsensitive(json, "impacts"),
+      getKeyCaseInsensitive(json?.data, "impacts"),
+    ];
+
+    const rawConsequences = candidates.find((c) => Array.isArray(c)) || [];
+
+    if (Array.isArray(rawConsequences) && rawConsequences.length > 0) {
+      console.debug("[FETCH] consequences recibidas:", rawConsequences);
+      // Normalizar campos para garantizar `description`, `impact_level`, `icon`
+      const normalized = rawConsequences.map((c: any) => ({
+        description: c.description || c.desc || c.text || "",
+        impact_level: Number(c.impact_level ?? c.impactLevel ?? c.level ?? 0),
+        icon: (c.icon || c.iconName || c.icon_class || "leaf").toString(),
+      })) as Consequence[];
+      setConsequences(normalized);
+    } else {
+      setConsequences([]);
+    }
   } catch (err: any) {
     if (err.name === "AbortError") {
       console.error("[TIMEOUT] El servidor tardó demasiado.");
-      console.log("[FALLBACK] Usando datos del JSON...");
-      useFallbackData();
+      setError("La solicitud tardó demasiado. Intenta nuevamente.");
     } else if (err instanceof TypeError) {
       console.error("[NETWORK ERROR]", err);
-      console.log("[FALLBACK] Usando datos del JSON...");
-      useFallbackData();
+      setError(
+        "No se pudo conectar con el servidor. Verifica tu conexión o si el túnel está activo."
+      );
     } else {
       console.error("[UNKNOWN ERROR]", err);
       setError("Ocurrió un error inesperado al solicitar los datos.");
@@ -167,46 +203,13 @@ const fetchForecast = async (months: number) => {
   }
 };
 
-const useFallbackData = () => {
-  try {
-    const { dates, predictions, last_16_dates, last_16_values } = dataSample.data;
-    
-    const points: ChartPoint[] = [];
-
-    last_16_dates.forEach((date: string, i: number) => {
-      points.push({
-        date,
-        historical: last_16_values[i],
-        forecast: null,
-      });
-    });
-
-    dates.forEach((date: string, i: number) => {
-      points.push({
-        date,
-        historical: null,
-        forecast: predictions[i],
-      });
-    });
-
-    setChartData(points);
-    setError(null);
-  } catch (err) {
-    console.error("[FALLBACK ERROR]", err);
-    setError("No se pudieron cargar los datos del servidor ni del archivo local.");
-  }
-};
-
 
   useEffect(() => {
     fetchForecast(months);
   }, [months]);
 
-  useEffect(() => {
-    if (dataSample?.data?.consequences) {
-      setConsequences(dataSample.data.consequences);
-    }
-  }, []);
+  // Las consecuencias las provee la API en la respuesta `json.data.consequences`.
+  // Si no vienen, `consequences` quedará vacío.
 
   return (
     <div className="data-section">
@@ -257,8 +260,11 @@ const useFallbackData = () => {
                 dataKey="date"
                 tick={{ fontSize: 10 }}
                 tickFormatter={(value) => String(value).slice(0, 7)}
-                interval={0}            
-                minTickGap={10}         
+                angle={-45}
+                textAnchor="end"
+                height={70}
+                interval={xInterval}
+                minTickGap={8}
                 allowDataOverflow={true}
                 />
 
@@ -298,9 +304,23 @@ const useFallbackData = () => {
 
       <div className="consequences-section">
         <h3 className="consequences-title">Consecuencias del Incremento de CO₂</h3>
+        {consequences.length > 0 && (
+          <p style={{ textAlign: 'center', color: '#444', marginTop: 6 }}>
+            Mostrando {consequences.length} consecuencias
+          </p>
+        )}
         <div className="consequences-list">
-          {consequences.map((consequence, index) => (
-            <div key={index} className="consequence-item">
+          {consequences.length === 0 ? (
+            <p style={{ color: '#666', gridColumn: '1/-1', textAlign: 'center' }}>
+              No hay consecuencias disponibles.
+            </p>
+          ) : (
+            consequences.map((consequence, index) => (
+            <div
+              key={index}
+              className="consequence-item"
+              style={{ borderLeftColor: getImpactColor(consequence.impact_level) }}
+            >
               <div
                 className="consequence-indicator"
                 style={{ backgroundColor: getImpactColor(consequence.impact_level) }}
@@ -311,7 +331,7 @@ const useFallbackData = () => {
                 Impacto: {consequence.impact_level}/5
               </span>
             </div>
-          ))}
+          ))) }
         </div>
       </div>
     </div>

@@ -5,9 +5,16 @@ import random
 import sqlite3
 from typing import Optional, Dict, Any, List
 from dotenv import load_dotenv
+
 load_dotenv()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel, EmailStr
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import smtplib
 
 # Import your model
 from ForecastModel import forecast_co2
@@ -244,6 +251,60 @@ def transformar_texto(texto_json: str, m: int) -> List[Dict[str, Any]]:
         ]
         return fallback
 
+# === Configuración ===
+GMAIL_ADDRESS = os.getenv("GMAIL_ADDRESS")
+GMAIL_PASSWORD = os.getenv("GMAIL_PASSWORD") 
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+
+
+# ===== Modelo del cuerpo del request =====
+class EmailRequest(BaseModel):
+    to: EmailStr
+    subject: str
+    userEmail: EmailStr
+    message: str
+
+
+# ===== Función para enviar correo =====
+def send_email(to_email: str, subject: str, user_email: str, message: str) -> bool:
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = GMAIL_ADDRESS
+        msg["To"] = to_email
+        msg["Subject"] = subject
+
+        body_html = f"""
+        <html>
+            <body>
+                <h2>Nuevo mensaje desde el formulario de contacto</h2>
+                <p><strong>De:</strong> {user_email}</p>
+                <p><strong>Asunto:</strong> {subject}</p>
+                <hr>
+                <p>{message}</p>
+                <hr>
+                <p style="font-size: 12px; color: #555;">
+                    Este mensaje fue enviado desde LAirPrope - Modelo de Predicción de CO₂.
+                </p>
+            </body>
+        </html>
+        """
+
+        msg.attach(MIMEText(body_html, "html"))
+
+        # Conectar y enviar
+        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+            server.starttls()
+            server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+            server.send_message(msg)
+
+        return True
+
+    except Exception as e:
+        print(f"[EMAIL ERROR] {str(e)}")
+        return False
+
+
 
 def forecast_co2_json(months: int) -> Dict[str, Any]:
     result = forecast_co2(months)
@@ -345,3 +406,32 @@ async def getActions5():
 async def getActionsam(amm: int = 5):
     pool = list(acciones_climaticas.items())
     return {"actions": random.sample(pool, min(max(1, amm), len(pool)))}
+
+# ===== Endpoint =====
+@app.post("/api/email/send")
+async def send_contact_email(request: EmailRequest):
+    # Validación de campos
+    if request.subject.strip() == "":
+        raise HTTPException(status_code=400, detail="El asunto no puede estar vacío.")
+    if request.message.strip() == "":
+        raise HTTPException(status_code=400, detail="El mensaje no puede estar vacío.")
+
+    # Intentar enviar correo
+    success = send_email(
+        to_email=request.to,
+        subject=request.subject,
+        user_email=request.userEmail,
+        message=request.message
+    )
+
+    if not success:
+        raise HTTPException(
+            status_code=500,
+            detail="Error al enviar el correo. Intenta más tarde."
+        )
+
+    return {
+        "success": True,
+        "message": "Correo enviado exitosamente"
+    }
+

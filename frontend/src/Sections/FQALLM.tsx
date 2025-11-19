@@ -20,57 +20,139 @@ const FaqItem = ({ question, answer }) => {
   );
 };
 
-// --- Componente para la sección de "Pregunta al LLM" ---
-const AskLLM = () => {
-  const [prompt, setPrompt] = useState('');
-  const [response, setResponse] = useState('');
+// --- Componente para el formulario de contacto por correo ---
+const ContactForm = () => {
+  const [formData, setFormData] = useState({
+    subject: '',
+    userEmail: '',
+    message: '',
+  });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!prompt.trim()) {
-      setError('Por favor, introduce una pregunta.');
+
+    // Validaciones
+    if (!formData.subject.trim()) {
+      setError('Por favor, introduce un asunto.');
       return;
     }
+    if (!formData.userEmail.trim()) {
+      setError('Por favor, introduce tu correo electrónico.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.userEmail)) {
+      setError('Por favor, introduce un correo válido.');
+      return;
+    }
+    if (!formData.message.trim()) {
+      setError('Por favor, escribe un mensaje.');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
-    setResponse('');
+    setSuccess(false);
 
-    // **Simulación de llamada a la API de Gemini Flash 2.5**
-    // En una aplicación real, aquí harías la petición a tu backend que a su vez llama al LLM.
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simula el tiempo de respuesta
-      setResponse(`Respuesta simulada de Gemini a: "${prompt}". En un entorno de producción, esta sería la respuesta real del modelo de lenguaje, procesada y mostrada de forma clara y concisa para el usuario.`);
+      // Enviar correo al backend
+      const response = await fetch('/api/email/send', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: 'dummycharlyb@gmail.com',
+          subject: formData.subject,
+          userEmail: formData.userEmail,
+          message: formData.message,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        setError(errorData?.message || 'Error al enviar el correo.');
+        return;
+      }
+
+      setSuccess(true);
+      setFormData({ subject: '', userEmail: '', message: '' });
+      setTimeout(() => setSuccess(false), 5000); // Ocultar mensaje de éxito después de 5s
     } catch (apiError) {
-      setError('Lo sentimos, ha ocurrido un error al procesar tu pregunta.');
+      console.error('[EMAIL ERROR]', apiError);
+      setError('No se pudo enviar el correo. Intenta más tarde.');
     } finally {
       setIsLoading(false);
-      setPrompt('');
     }
   };
 
   return (
     <div className="ask-llm-card">
-      <h3>¿Tienes otra pregunta?</h3>
-      <p>Pregúntale directamente a nuestro asistente de IA.</p>
+      <h3>¿Tienes una pregunta o sugerencia?</h3>
+      <p>Envíanos un mensaje y nos pondremos en contacto pronto.</p>
       <form onSubmit={handleSubmit}>
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Escribe tu pregunta aquí..."
-          className="llm-input"
-          rows="3"
-        />
+        <div className="form-group">
+          <label htmlFor="subject">Asunto:</label>
+          <input
+            id="subject"
+            type="text"
+            name="subject"
+            value={formData.subject}
+            onChange={handleChange}
+            placeholder="Ej: Pregunta sobre CO₂"
+            className="llm-input"
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="userEmail">Tu correo:</label>
+          <input
+            id="userEmail"
+            type="email"
+            name="userEmail"
+            value={formData.userEmail}
+            onChange={handleChange}
+            placeholder="tu@correo.com"
+            className="llm-input"
+            disabled={isLoading}
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="message">Mensaje:</label>
+          <textarea
+            id="message"
+            name="message"
+            value={formData.message}
+            onChange={handleChange}
+            placeholder="Escribe tu mensaje aquí..."
+            className="llm-input"
+            rows={3}
+            disabled={isLoading}
+          />
+        </div>
+
         <button type="submit" className="llm-submit-btn" disabled={isLoading}>
-          {isLoading ? 'Pensando...' : 'Enviar Pregunta'}
+          {isLoading ? 'Enviando...' : 'Enviar Mensaje'}
         </button>
       </form>
+
       {error && <p className="llm-error">{error}</p>}
-      {response && (
+      {success && (
         <div className="llm-response">
-          <h4>Respuesta:</h4>
-          <p>{response}</p>
+          <h4>¡Mensaje enviado!</h4>
+          <p>Gracias por tu mensaje. Nos pondremos en contacto pronto.</p>
         </div>
       )}
     </div>
@@ -135,7 +217,7 @@ const FQALLMM = () => {
             <FaqItem key={index} question={item.question} answer={item.answer} />
             ))}
         </div>
-      <AskLLM />
+      <ContactForm />
     </div>
   );
 };
