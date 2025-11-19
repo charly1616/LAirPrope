@@ -8,5 +8,6 @@
 -- Activar Frontend
 
 1. Crear otra instancia de un terminal
-2. 
+2. 'npm intall' --> para las dependecias de NodeJS
+3. 'npm run dev' --> para montar la pagina web
 
